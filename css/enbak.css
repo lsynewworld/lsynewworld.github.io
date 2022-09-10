@@ -1,0 +1,95 @@
+#bak_0 {
+    left: 0;
+    WIDTH: 350px;
+    HEIGHT: 300px;
+    margin: 0 auto 0;
+}
+
+#passMa {
+    width: 100%;
+    height: 88px;
+    margin-top: -20px;
+    background-size: 350px;
+}
+
+.number {
+    height: 50px;
+    overflow: hidden;
+    float: left;
+    margin-top: 205px;
+    /*margin-left: 100px;*/
+}
+
+.number img {
+    display: block;
+    width: 30px;
+    height: 50px;
+    /*background-color: red;*/
+    background-image: url("../img/jj.jpg");
+}
+
+#shi1 {
+    margin-left: 50px;
+}
+
+#rl {
+    height: 280px;
+    border: 0px;
+}
+
+#student {
+    background-image: url("../images/生.jpg");
+    background-repeat: no-repeat;
+    background-size: 80px;
+    background-position: 250px 0;
+}
+
+#zzt {
+    margin-left: 1px;
+    margin-top: -50px;
+    height: 320px;
+    width: 348px;
+    border: 0px solid white;
+}
+
+#zhb {
+    background-color: blue;
+    font-weight: 400;
+    font-size: 15px;
+}
+
+.button {
+    background-color: #0704a6;
+    font-weight: 500;
+    border: solid #bcbcbc 2px;
+    color: white;
+    padding: 5px 8px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    /* cursor: pointer; */
+    margin-left: 90px;
+    /* margin-bottom: 20px; */
+}
+
+a:link {
+    text-decoration: none;
+}
+
+
+/* unvisited link */
+
+a:visited {
+    text-decoration: none;
+}
+
+
+/* visited link */
+
+a:hover {
+    text-decoration: underline;
+}
+
+
+/* mouse over link */
