@@ -73,6 +73,28 @@
     /* margin-bottom: 20px; */
 }
 
+#hsjc {
+    border-radius: 10px 10px 10px 10px;
+    background: #b5f5a3;
+    padding: 20px;
+    width: 120px;
+    height: 35px;
+    font-size: 12px;
+    color: rgb(33, 168, 55);
+    display: inline-block;
+}
+
+#ymjz {
+    border-radius: 10px 10px 10px 10px;
+    background: #b9c4f5;
+    padding: 20px;
+    width: 120px;
+    height: 35px;
+    font-size: 12px;
+    color: rgb(65, 131, 189);
+    display: inline-block;
+}
+
 a:link {
     text-decoration: none;
 }

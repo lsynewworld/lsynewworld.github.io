@@ -1,60 +1,47 @@
 <!DOCTYPE html>
+<html>
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=350, initial-scale=1.0, maximum-scale=1.0, user-scalable=1.0, user-scalable=no;" />
-    <META HTTP-EQUIV="pragma" CONTENT="no-cache">
-    <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache, must-revalidate">
-    <META HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 2007 08:21:57 GMT">
-    <script src="https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
-    <script src="https://cdn.bootcss.com/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
-    <title>郑州大学数据中台2021</title>
+    <meta charset="utf-8">
+    <title>菜鸟教程(runoob.com)</title>
     <style>
-        .button {
+        #hsjc {
+            border-radius: 10px 10px 10px 10px;
+            background: #b5f5a3;
+            padding: 20px;
+            width: 80px;
+            height: 30px;
+            font-size: 12px;
+            color: rgb(33, 168, 55);
             display: inline-block;
-            padding: 15px 25px;
-            font-size: 24px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            outline: none;
-            color: #fff;
-            background-color: #4CAF50;
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 9px #999;
         }
         
-        .button:hover {
-            background-color: #3e8e41
+        #ymjz {
+            border-radius: 10px 10px 10px 10px;
+            background: #b9c4f5;
+            padding: 20px;
+            width: 80px;
+            height: 30px;
+            font-size: 12px;
+            color: rgb(65, 131, 189);
+            display: inline-block;
         }
         
-        .button:active {
-            background-color: #3e8e41;
-            box-shadow: 0 5px #666;
-            transform: translateY(4px);
+        #hh {
+            border: 0cm;
         }
     </style>
 </head>
-<div>
-    <div id="nowtime">时间获取中:)...</div>
-    <div id="nowtime1">时间获取中:)...</div>
 
-    <body>
+<body>
+    <p>dd</p>
 
-    </body>
-    <script type="text/javascript">
-        function gettime() {
-            var time = new Date();
-            var arr = new Array("星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六");
-            var hour = time.getHours();
-            var min = time.getMinutes();
-            var sec = time.getSeconds();
-            var madetime = "0" + (time.getMonth() + 1) + "月" + time.getDate() + "日 " + hour + (min < 10 ? ":0" : ":") + min + "获取";
-            var madetime1 = "最近一次核酸结果：" + time.getFullYear() + "-0" + (time.getMonth() + 1) + "-" + time.getDate();
-            document.getElementById("nowtime").innerText = madetime;
-            document.getElementById("nowtime1").innerText = madetime1;
-        }
-        gettime(); //显示第一秒的时间
-        setInterval("gettime()", 1000);
-    </script>
+    <label>姓名：
+        <input type="text" name="user" value="请输入用户名">
+    </label><br>
+    <label for="pwd">密码：</label>
+    <input type="password" id="pwd" name="pwd" maxlength="6"><br>
+
+</body>
+
+</html>
