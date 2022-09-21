@@ -1,0 +1,166 @@
+#bak_0 {
+    left: 0;
+    WIDTH: 350px;
+    HEIGHT: 300px;
+    margin: 0 auto 0;
+    /* margin-top: -100px; */
+}
+
+#passMa {
+    width: 100%;
+    height: 88px;
+    margin-top: -10px;
+    background-size: 350px;
+}
+
+.number {
+    height: 50px;
+    overflow: hidden;
+    float: left;
+    margin-top: 205px;
+    /*margin-left: 100px;*/
+}
+
+.number img {
+    display: block;
+    width: 30px;
+    height: 50px;
+    /*background-color: red;*/
+    background-image: url("../img/jj.jpg");
+}
+
+#shi1 {
+    margin-left: 50px;
+}
+
+#rl {
+    height: 280px;
+    border: 0px;
+}
+
+#student {
+    background-image: url("../images/师.jpg");
+    background-repeat: no-repeat;
+    background-size: 86px;
+    background-position: 250px 0;
+}
+
+#zzt {
+    margin-left: 1px;
+    margin-top: -50px;
+    height: 320px;
+    width: 348px;
+    border: 0px solid white;
+}
+
+#zhb {
+    background-color: blue;
+    font-weight: 400;
+    font-size: 15px;
+}
+
+.button {
+    background-color: #0704a6;
+    font-weight: 500;
+    border: solid #bcbcbc 2px;
+    color: white;
+    padding: 5px 8px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    /* cursor: pointer; */
+    margin-left: 90px;
+    /* margin-bottom: 20px; */
+}
+
+#hsjc {
+    border-radius: 10px 10px 10px 10px;
+    background: #b5f5a3;
+    padding: 20px;
+    width: 120px;
+    height: 35px;
+    font-size: 12px;
+    color: rgb(33, 168, 55);
+    display: inline-block;
+}
+
+#ymjz {
+    border-radius: 10px 10px 10px 10px;
+    background: #b9c4f5;
+    padding: 20px;
+    width: 120px;
+    height: 35px;
+    font-size: 12px;
+    color: rgb(65, 131, 189);
+    display: inline-block;
+}
+
+a:link {
+    text-decoration: none;
+}
+
+
+/* unvisited link */
+
+a:visited {
+    text-decoration: none;
+}
+
+
+/* visited link */
+
+a:hover {
+    text-decoration: underline;
+}
+
+
+/* mouse over link */
+
+.hes1 {
+    width: 165px;
+    height: 100%;
+    line-height: 20px;
+    font-size: 14px;
+    color: #008a24;
+    text-align: center;
+    background-color: #a3fdba;
+    float: left;
+    border-radius: 10px;
+}
+
+.hes2 {
+    width: 165px;
+    height: 100%;
+    line-height: 20px;
+    font-size: 14px;
+    color: #909;
+    text-align: center;
+    background-color: #c4c4c4;
+    float: left;
+    border-radius: 10px;
+}
+
+.yim1 {
+    width: 165px;
+    height: 100%;
+    line-height: 20px;
+    font-size: 14px;
+    color: #005ddc;
+    text-align: center;
+    background-color: #bad7ff;
+    float: left;
+    border-radius: 10px;
+}
+
+.yim2 {
+    width: 165px;
+    height: 100%;
+    line-height: 20px;
+    font-size: 14px;
+    color: #909;
+    text-align: center;
+    background-color: #c4c4c4;
+    float: left;
+    border-radius: 10px;
+}
