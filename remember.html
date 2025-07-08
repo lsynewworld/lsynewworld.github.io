@@ -78,17 +78,8 @@
     </style>
 </head>
 <body class="bg-neutral-100 font-inter text-neutral-700 min-h-screen">
-    <!-- 密码验证模态框 -->
-    <div id="password-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-xl w-full max-w-md mx-4 overflow-hidden shadow-xl animate-fade-in p-8">
-            <h3 class="text-lg font-semibold text-neutral-700 mb-4">请输入密码</h3>
-            <input id="password-input" type="password" class="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all mb-4">
-            <button id="password-submit" class="w-full bg-primary hover:bg-secondary text-white font-medium py-3 px-4 rounded-lg transition-all shadow-md hover:shadow-lg">提交</button>
-        </div>
-    </div>
-
     <!-- 顶部导航栏 -->
-    <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50 hidden">
+    <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-4">
                 <h1 class="text-2xl font-bold text-primary flex items-center">
@@ -121,7 +112,7 @@
     </div>
 
     <!-- 主内容区 -->
-    <main class="container mx-auto px-4 pt-20 pb-16 hidden">
+    <main class="container mx-auto px-4 pt-20 pb-16">
         <!-- 动态列表视图 -->
         <div id="posts-container" class="max-w-4xl mx-auto space-y-6">
             <!-- 动态内容将通过JavaScript动态添加 -->
@@ -149,7 +140,7 @@
     </main>
 
     <!-- 页脚 -->
-    <footer class="bg-white border-t border-neutral-200 py-4 hidden">
+    <footer class="bg-white border-t border-neutral-200 py-4">
         <div class="container mx-auto px-4 text-center text-neutral-500 text-sm">
             <p>© 2025 我的朋友圈应用 | 所有内容保存在本地</p>
         </div>
@@ -239,27 +230,6 @@
     </div>
 
     <script>
-        // 定义正确的密码
-        const CORRECT_PASSWORD = "5566lsylsy";
-        const passwordModal = document.getElementById('password-modal');
-        const passwordInput = document.getElementById('password-input');
-        const passwordSubmit = document.getElementById('password-submit');
-        const mainElements = document.querySelectorAll('header, #timeline-filter, main, footer');
-
-        // 密码验证
-        passwordSubmit.addEventListener('click', function() {
-            const inputPassword = passwordInput.value;
-            if (inputPassword === CORRECT_PASSWORD) {
-                passwordModal.style.display = 'none';
-                mainElements.forEach(element => {
-                    element.classList.remove('hidden');
-                });
-                initApp();
-            } else {
-                alert('密码错误，请重新输入。');
-            }
-        });
-
         // 数据结构
         let posts = [];
         let currentPostId = null;
@@ -365,9 +335,6 @@
                     // 更新时间线筛选器
                     updateTimelineFilters();
                     
-                    // 渲染动态
-                    renderPosts();
-                    
                     resolve();
                 };
                 
@@ -407,7 +374,7 @@
         }
 
         // 删除动态
-        async function deletePost(postId) {
+        async function deletePostFile(postId) {
             return new Promise((resolve, reject) => {
                 console.log('尝试删除动态...');
                 if (!db) {
@@ -422,10 +389,6 @@
                 
                 request.onsuccess = function(event) {
                     console.log('动态删除成功');
-                    // 从内存中删除
-                    posts = posts.filter(post => post.id !== postId);
-                    // 重新渲染
-                    renderPosts();
                     resolve(true);
                 };
                 
@@ -459,10 +422,10 @@
                 yearMonths.add(yearMonth);
             });
             
-            // 添加年月筛选按钮
+            // 添加年月按钮
             yearMonths.forEach(yearMonth => {
                 const btn = document.createElement('button');
-                btn.className = 'time-filter-btn px-3 py-1 rounded-md text-sm bg-neutral-200 text-neutral-600 whitespace-nowrap';
+                btn.className = 'time-filter-btn px-3 py-1 rounded-md text-sm bg-neutral-200 text-neutral-600 whitespace-nowrap hover:bg-neutral-300 transition-colors';
                 btn.textContent = yearMonth;
                 btn.addEventListener('click', () => {
                     setTimelineFilter(yearMonth);
@@ -474,8 +437,10 @@
         // 设置时间线筛选器
         function setTimelineFilter(filter) {
             currentFilter = filter;
+            
             // 更新按钮样式
-            document.querySelectorAll('.time-filter-btn').forEach(btn => {
+            const filterBtns = timelineFilter.querySelectorAll('.time-filter-btn');
+            filterBtns.forEach(btn => {
                 if (btn.textContent === filter || (filter === 'all' && btn.textContent === '全部')) {
                     btn.classList.remove('bg-neutral-200', 'text-neutral-600');
                     btn.classList.add('bg-primary', 'text-white');
@@ -484,32 +449,69 @@
                     btn.classList.add('bg-neutral-200', 'text-neutral-600');
                 }
             });
-            // 重新渲染动态
-            renderPosts();
+            
+            // 更新显示
+            updatePostsDisplay();
         }
 
-        // 渲染动态
-        function renderPosts() {
+        // 切换到时间线视图
+        function switchToTimelineView() {
+            currentView = 'timeline';
+            timelineViewBtn.classList.remove('bg-neutral-200', 'text-neutral-600');
+            timelineViewBtn.classList.add('bg-primary', 'text-white');
+            listViewBtn.classList.remove('bg-primary', 'text-white');
+            listViewBtn.classList.add('bg-neutral-200', 'text-neutral-600');
+            postsContainer.classList.add('hidden');
+            timelineContainer.classList.remove('hidden');
+            timelineFilter.classList.remove('hidden');
+            
+            // 滚动到顶部
+            window.scrollTo(0, 0);
+            
+            // 更新显示
+            updatePostsDisplay();
+        }
+
+        // 切换到列表视图
+        function switchToListView() {
+            currentView = 'list';
+            listViewBtn.classList.remove('bg-neutral-200', 'text-neutral-600');
+            listViewBtn.classList.add('bg-primary', 'text-white');
+            timelineViewBtn.classList.remove('bg-primary', 'text-white');
+            timelineViewBtn.classList.add('bg-neutral-200', 'text-neutral-600');
+            postsContainer.classList.remove('hidden');
+            timelineContainer.classList.add('hidden');
+            timelineFilter.classList.add('hidden');
+            
+            // 滚动到顶部
+            window.scrollTo(0, 0);
+            
+            // 更新显示
+            updatePostsDisplay();
+        }
+
+        // 更新动态显示
+        function updatePostsDisplay() {
             // 清空容器
             postsContainer.innerHTML = '';
             timelineContainer.innerHTML = '';
             
-            // 应用筛选器
+            // 筛选动态
             let filteredPosts = posts;
             if (currentFilter !== 'all') {
-                const year = parseInt(currentFilter);
-                const month = parseInt(currentFilter.split('年')[1].split('月')[0]) - 1;
+                const [yearStr, monthStr] = currentFilter.split('年');
+                const year = parseInt(yearStr);
+                const month = parseInt(monthStr);
+                
                 filteredPosts = posts.filter(post => {
                     const date = new Date(post.timestamp);
-                    return date.getFullYear() === year && date.getMonth() === month;
+                    return date.getFullYear() === year && date.getMonth() + 1 === month;
                 });
             }
             
             // 检查是否有动态
             if (filteredPosts.length === 0) {
                 emptyState.classList.remove('hidden');
-                postsContainer.classList.add('hidden');
-                timelineContainer.classList.add('hidden');
                 return;
             }
             
@@ -518,65 +520,234 @@
             
             // 根据当前视图渲染
             if (currentView === 'list') {
-                postsContainer.classList.remove('hidden');
-                timelineContainer.classList.add('hidden');
-                
                 // 渲染列表视图
                 filteredPosts.forEach(post => {
                     const postElement = createPostElement(post);
                     postsContainer.appendChild(postElement);
                 });
             } else {
-                postsContainer.classList.add('hidden');
-                timelineContainer.classList.remove('hidden');
-                
-                // 按日期分组
-                const postsByDate = {};
-                filteredPosts.forEach(post => {
-                    const date = new Date(post.timestamp);
-                    const dateString = date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
-                    if (!postsByDate[dateString]) {
-                        postsByDate[dateString] = [];
-                    }
-                    postsByDate[dateString].push(post);
-                });
-                
                 // 渲染时间线视图
-                Object.keys(postsByDate).forEach(dateString => {
-                    const dateGroup = document.createElement('div');
-                    dateGroup.className = 'relative pl-12';
-                    
-                    // 添加日期标题
-                    const dateHeader = document.createElement('div');
-                    dateHeader.className = 'timeline-dot mt-1';
-                    dateHeader.innerHTML = `
-                        <div class="ml-8 text-sm font-medium text-neutral-500">${dateString}</div>
-                    `;
-                    dateGroup.appendChild(dateHeader);
-                    
-                    // 添加该日期的所有动态
-                    const postsWrapper = document.createElement('div');
-                    postsWrapper.className = 'mt-4 ml-8 space-y-6';
-                    postsByDate[dateString].forEach(post => {
-                        const postElement = createPostElement(post);
-                        postsWrapper.appendChild(postElement);
-                    });
-                    dateGroup.appendChild(postsWrapper);
-                    
-                    timelineContainer.appendChild(dateGroup);
+                const postsByMonth = groupPostsByMonth(filteredPosts);
+                
+                postsByMonth.forEach(monthGroup => {
+                    const monthElement = createMonthGroupElement(monthGroup);
+                    timelineContainer.appendChild(monthElement);
                 });
             }
         }
 
+        // 按年月分组动态
+        function groupPostsByMonth(posts) {
+            const groups = {};
+            
+            posts.forEach(post => {
+                const date = new Date(post.timestamp);
+                const yearMonth = `${date.getFullYear()}年${date.getMonth() + 1}月`;
+                
+                if (!groups[yearMonth]) {
+                    groups[yearMonth] = {
+                        yearMonth,
+                        posts: []
+                    };
+                }
+                
+                groups[yearMonth].posts.push(post);
+            });
+            
+            return Object.values(groups);
+        }
+
+        // 创建月份分组元素
+        function createMonthGroupElement(monthGroup) {
+            const monthElement = document.createElement('div');
+            monthElement.className = 'space-y-6';
+            
+            // 添加月份标题
+            const header = document.createElement('div');
+            header.className = 'px-6 py-3 bg-white rounded-lg shadow-sm flex items-center';
+            header.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-3">
+                    <i class="fa fa-calendar-o"></i>
+                </div>
+                <h3 class="font-medium text-neutral-700">${monthGroup.yearMonth}</h3>
+                <span class="ml-2 text-sm text-neutral-500">${monthGroup.posts.length}条动态</span>
+            `;
+            monthElement.appendChild(header);
+            
+            // 添加动态
+            monthGroup.posts.forEach((post, index) => {
+                const postElement = createTimelinePostElement(post, index === 0);
+                monthElement.appendChild(postElement);
+            });
+            
+            return monthElement;
+        }
+
+        // 创建时间线动态元素
+        function createTimelinePostElement(post, isFirst) {
+            const postDate = new Date(post.timestamp);
+            const formattedDate = postDate.toLocaleString('zh-CN', {
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const postElement = document.createElement('div');
+            postElement.className = 'timeline-item relative pl-12';
+            postElement.dataset.postId = post.id;
+            
+            // 添加时间点
+            const timeDot = document.createElement('div');
+            timeDot.className = 'timeline-dot mt-4';
+            postElement.appendChild(timeDot);
+            
+            // 动态内容
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'bg-white rounded-xl overflow-hidden card-shadow hover-scale animate-fade-in mt-2 mb-4';
+            
+            // 彻底检查图片URL是否有效
+            const hasValidImages = post.imageUrls && post.imageUrls.length > 0;
+            
+            // 检查是否有非空的内容
+            const hasContent = post.content && post.content.trim() !== '';
+            
+            // 动态内容部分（只有在有内容时才生成）
+            let contentHtml = '';
+            if (hasContent) {
+                contentHtml = `
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    <i class="fa fa-user-circle-o text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-medium text-neutral-700">${accountName}</h3>
+                                    <p class="text-xs text-neutral-400">${formattedDate}</p>
+                                </div>
+                            </div>
+                            <button class="delete-post text-neutral-400 hover:text-neutral-600 transition-colors">
+                                <i class="fa fa-trash-o"></i>
+                            </button>
+                        </div>
+                        <p class="text-neutral-700 mb-4">${post.content}</p>
+                    </div>
+                `;
+            }
+            
+            // 图片部分（仅当有有效图片时生成）
+            let imageHtml = '';
+            if (hasValidImages) {
+                imageHtml = `
+                    <div class="p-6 pt-0">
+                        <div class="image-grid">
+                            ${post.imageUrls.map((url, index) => `
+                                <div class="relative group cursor-pointer overflow-hidden rounded-lg" data-index="${index}">
+                                    <img src="${url}" alt="动态图片" class="w-full h-24 object-cover hover:opacity-90 transition-opacity">
+                                    ${post.imageUrls.length > 1 && index === post.imageUrls.length - 1 && post.imageUrls.length > 4 ? 
+                                        `<div class="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-bold">+${post.imageUrls.length - 4}</div>` : ''
+                                    }
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 互动按钮部分（只有在有内容或图片时才生成）
+            let actionsHtml = '';
+            if (hasContent || hasValidImages) {
+                actionsHtml = `
+                    <div class="border-t border-neutral-100 px-6 py-3 flex justify-between">
+                        <button class="like-post flex items-center space-x-1 text-neutral-500 hover:text-primary transition-colors">
+                            <i class="fa fa-heart-o"></i>
+                            <span>点赞</span>
+                        </button>
+                        <button class="add-comment flex items-center space-x-1 text-neutral-500 hover:text-primary transition-colors">
+                            <i class="fa fa-comment-o"></i>
+                            <span>评论</span>
+                        </button>
+                    </div>
+                `;
+            }
+            
+            // 评论部分（有评论时显示，且仅当有内容或图片时才显示）
+            let commentsHtml = '';
+            if ((hasContent || hasValidImages) && post.comments && post.comments.length > 0) {
+                const limitedComments = post.comments.slice(0, 2); // 只显示最新的两条评论
+                commentsHtml = `
+                    <div class="px-6 pt-2 pb-4 space-y-2">
+                        ${limitedComments.map(comment => `
+                            <div class="flex items-start space-x-2">
+                                <div class="w-8 h-8 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-500 flex-shrink-0">
+                                    <i class="fa fa-user"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between">
+                                        <p class="text-sm font-medium text-neutral-700">评论者</p>
+                                        <p class="text-xs text-neutral-400">${formattedDate}</p>
+                                    </div>
+                                    <p class="text-sm text-neutral-600">${comment.text}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                        ${post.comments.length > 2 ? 
+                            `<button class="text-primary text-sm hover:underline view-all-comments">查看全部 ${post.comments.length} 条评论</button>` : ''
+                        }
+                    </div>
+                `;
+            }
+            
+            // 组合最终的HTML结构
+            contentWrapper.innerHTML = contentHtml + imageHtml + actionsHtml + commentsHtml;
+            postElement.appendChild(contentWrapper);
+            
+            // 添加事件监听器
+            const deleteBtn = postElement.querySelector('.delete-post');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', async () => {
+                    handleDeletePost(post.id);
+                });
+            }
+            
+            const likeBtn = postElement.querySelector('.like-post');
+            if (likeBtn) {
+                likeBtn.addEventListener('click', async () => {
+                    handleLikePost(post.id);
+                });
+            }
+            
+            const commentBtn = postElement.querySelector('.add-comment');
+            if (commentBtn) {
+                commentBtn.addEventListener('click', async () => {
+                    handleShowComments(post.id);
+                });
+            }
+            
+            const viewAllCommentsBtn = postElement.querySelector('.view-all-comments');
+            if (viewAllCommentsBtn) {
+                viewAllCommentsBtn.addEventListener('click', async () => {
+                    handleShowComments(post.id);
+                });
+            }
+            
+            // 添加图片点击事件
+            const imageContainers = postElement.querySelectorAll('.image-grid > div');
+            imageContainers.forEach(container => {
+                container.addEventListener('click', () => {
+                    const index = parseInt(container.dataset.index);
+                    openImageViewer(post.imageUrls, index, post.content);
+                });
+            });
+            
+            return postElement;
+        }
+
         // 创建动态元素
         function createPostElement(post) {
-            const postElement = document.createElement('div');
-            postElement.className = 'bg-white rounded-xl p-4 md:p-6 card-shadow hover-scale animate-fade-in';
-            postElement.setAttribute('data-post-id', post.id);
-            
-            // 格式化日期
-            const date = new Date(post.timestamp);
-            const formattedDate = date.toLocaleString('zh-CN', {
+            const postDate = new Date(post.timestamp);
+            const formattedDate = postDate.toLocaleString('zh-CN', {
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',
@@ -584,583 +755,368 @@
                 minute: '2-digit'
             });
             
-            // 构建评论HTML
-            let commentsHtml = '';
-            if (post.comments && post.comments.length > 0) {
-                commentsHtml = '<div class="mt-4 pt-4 border-t border-neutral-100">';
-                post.comments.forEach(comment => {
-                    commentsHtml += `
-                        <div class="flex items-start mb-3">
-                            <div class="flex-1">
-                                <div class="flex items-center">
-                                    <span class="font-medium text-neutral-700">${comment.author}</span>
-                                    <span class="ml-2 text-xs text-neutral-400">${formatCommentTime(comment.timestamp)}</span>
+            const postElement = document.createElement('article');
+            postElement.className = 'bg-white rounded-xl overflow-hidden card-shadow hover-scale animate-fade-in';
+            postElement.dataset.postId = post.id;
+            
+            // 彻底检查图片URL是否有效
+            const hasValidImages = post.imageUrls && post.imageUrls.length > 0;
+            
+            // 检查是否有非空的内容
+            const hasContent = post.content && post.content.trim() !== '';
+            
+            // 动态内容部分（只有在有内容时才生成）
+            let contentHtml = '';
+            if (hasContent) {
+                contentHtml = `
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                    <i class="fa fa-user-circle-o text-xl"></i>
                                 </div>
-                                <p class="text-neutral-600 mt-1">${comment.content}</p>
+                                <div>
+                                    <h3 class="text-sm font-medium text-neutral-700">${accountName}</h3>
+                                    <p class="text-xs text-neutral-400">${formattedDate}</p>
+                                </div>
                             </div>
-                            <button class="delete-comment-btn text-red-500 text-sm" data-comment-id="${comment.id}">删除</button>
-                        </div>
-                    `;
-                });
-                commentsHtml += '</div>';
-            }
-            
-            // 构建图片HTML
-            let imagesHtml = '';
-            if (post.images && post.images.length > 0) {
-                imagesHtml = '<div class="mt-4 image-grid">';
-                post.images.forEach((image, index) => {
-                    imagesHtml += `
-                        <div class="relative group overflow-hidden rounded-lg cursor-pointer" data-index="${index}">
-                            <img src="${image}" alt="动态图片" class="w-full h-24 md:h-32 object-cover transition-transform duration-300 group-hover:scale-110">
-                        </div>
-                    `;
-                });
-                imagesHtml += '</div>';
-            }
-            
-            // 设置动态内容
-            postElement.innerHTML = `
-                <div class="flex items-start">
-                    <img src="https://picsum.photos/seed/avatar${post.id}/48/48" alt="用户头像" class="w-10 h-10 rounded-full mr-3">
-                    <div class="flex-1">
-                        <div class="flex justify-between">
-                            <h3 class="font-medium text-neutral-700">${accountName}</h3>
-                            <span class="text-xs text-neutral-400">${formattedDate}</span>
-                        </div>
-                        <p class="text-neutral-600 mt-1">${post.content}</p>
-                        ${imagesHtml}
-                        <div class="mt-4 flex justify-between items-center">
-                            <div class="flex space-x-4">
-                                <button class="like-btn flex items-center text-neutral-500 hover:text-red-500 transition-colors" data-liked="${post.liked || false}">
-                                    <i class="fa fa-heart-o mr-1"></i>
-                                    <span>${post.likes || 0}</span>
-                                </button>
-                                <button class="comment-btn flex items-center text-neutral-500 hover:text-primary transition-colors">
-                                    <i class="fa fa-comment-o mr-1"></i>
-                                    <span>${post.comments ? post.comments.length : 0}</span>
-                                </button>
-                            </div>
-                            <button class="delete-post-btn text-neutral-400 hover:text-neutral-700">
+                            <button class="delete-post text-neutral-400 hover:text-neutral-600 transition-colors">
                                 <i class="fa fa-trash-o"></i>
                             </button>
                         </div>
-                        ${commentsHtml}
+                        <p class="text-neutral-700 mb-4">${post.content}</p>
                     </div>
-                </div>
-            `;
+                `;
+            }
+            
+            // 图片部分（仅当有有效图片时生成）
+            let imageHtml = '';
+            if (hasValidImages) {
+                imageHtml = `
+                    <div class="p-6 pt-0">
+                        <div class="image-grid">
+                            ${post.imageUrls.map((url, index) => `
+                                <div class="relative group cursor-pointer overflow-hidden rounded-lg" data-index="${index}">
+                                    <img src="${url}" alt="动态图片" class="w-full h-24 object-cover hover:opacity-90 transition-opacity">
+                                    ${post.imageUrls.length > 1 && index === post.imageUrls.length - 1 && post.imageUrls.length > 4 ? 
+                                        `<div class="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-bold">+${post.imageUrls.length - 4}</div>` : ''
+                                    }
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 互动按钮部分（只有在有内容或图片时才生成）
+            let actionsHtml = '';
+            if (hasContent || hasValidImages) {
+                actionsHtml = `
+                    <div class="border-t border-neutral-100 px-6 py-3 flex justify-between">
+                        <button class="like-post flex items-center space-x-1 text-neutral-500 hover:text-primary transition-colors">
+                            <i class="fa fa-heart-o"></i>
+                            <span>点赞</span>
+                        </button>
+                        <button class="add-comment flex items-center space-x-1 text-neutral-500 hover:text-primary transition-colors">
+                            <i class="fa fa-comment-o"></i>
+                            <span>评论</span>
+                        </button>
+                    </div>
+                `;
+            }
+            
+            // 评论部分（有评论时显示，且仅当有内容或图片时才显示）
+            let commentsHtml = '';
+            if ((hasContent || hasValidImages) && post.comments && post.comments.length > 0) {
+                const limitedComments = post.comments.slice(0, 2); // 只显示最新的两条评论
+                commentsHtml = `
+                    <div class="px-6 pt-2 pb-4 space-y-2">
+                        ${limitedComments.map(comment => `
+                            <div class="flex items-start space-x-2">
+                                <div class="w-8 h-8 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-500 flex-shrink-0">
+                                    <i class="fa fa-user"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between">
+                                        <p class="text-sm font-medium text-neutral-700">评论者</p>
+                                        <p class="text-xs text-neutral-400">${formattedDate}</p>
+                                    </div>
+                                    <p class="text-sm text-neutral-600">${comment.text}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                        ${post.comments.length > 2 ? 
+                            `<button class="text-primary text-sm hover:underline view-all-comments">查看全部 ${post.comments.length} 条评论</button>` : ''
+                        }
+                    </div>
+                `;
+            }
+            
+            // 组合最终的HTML结构
+            postElement.innerHTML = contentHtml + imageHtml + actionsHtml + commentsHtml;
             
             // 添加事件监听器
-            const likeBtn = postElement.querySelector('.like-btn');
-            likeBtn.addEventListener('click', function() {
-                toggleLike(post.id);
-            });
-            
-            const commentBtn = postElement.querySelector('.comment-btn');
-            commentBtn.addEventListener('click', function() {
-                openComments(post.id);
-            });
-            
-            const deleteBtn = postElement.querySelector('.delete-post-btn');
-            deleteBtn.addEventListener('click', function() {
-                if (confirm('确定要删除这条动态吗？')) {
-                    deletePost(post.id);
-                }
-            });
-            
-            // 为图片添加点击事件
-            const imageElements = postElement.querySelectorAll('.image-grid > div');
-            imageElements.forEach(element => {
-                element.addEventListener('click', function() {
-                    openImageViewer(post.images, parseInt(this.getAttribute('data-index')));
+            const deleteBtn = postElement.querySelector('.delete-post');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', async () => {
+                    handleDeletePost(post.id);
                 });
-            });
+            }
             
-            // 为删除评论按钮添加事件
-            const deleteCommentBtns = postElement.querySelectorAll('.delete-comment-btn');
-            deleteCommentBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const commentId = this.getAttribute('data-comment-id');
-                    deleteComment(post.id, commentId);
+            const likeBtn = postElement.querySelector('.like-post');
+            if (likeBtn) {
+                likeBtn.addEventListener('click', async () => {
+                    handleLikePost(post.id);
+                });
+            }
+            
+            const commentBtn = postElement.querySelector('.add-comment');
+            if (commentBtn) {
+                commentBtn.addEventListener('click', async () => {
+                    handleShowComments(post.id);
+                });
+            }
+            
+            const viewAllCommentsBtn = postElement.querySelector('.view-all-comments');
+            if (viewAllCommentsBtn) {
+                viewAllCommentsBtn.addEventListener('click', async () => {
+                    handleShowComments(post.id);
+                });
+            }
+            
+            // 添加图片点击事件
+            const imageContainers = postElement.querySelectorAll('.image-grid > div');
+            imageContainers.forEach(container => {
+                container.addEventListener('click', () => {
+                    const index = parseInt(container.dataset.index);
+                    openImageViewer(post.imageUrls, index, post.content);
                 });
             });
             
             return postElement;
         }
 
-        // 格式化评论时间
-        function formatCommentTime(timestamp) {
-            const now = new Date();
-            const commentDate = new Date(timestamp);
-            const diffMs = now - commentDate;
-            const diffSec = Math.floor(diffMs / 1000);
-            const diffMin = Math.floor(diffSec / 60);
-            const diffHour = Math.floor(diffMin / 60);
-            const diffDay = Math.floor(diffHour / 24);
+        // 打开图片查看器
+        function openImageViewer(images, startIndex, caption) {
+            currentImages = images;
+            currentImageIndex = startIndex;
             
-            if (diffDay > 0) {
-                return `${diffDay}天前`;
-            } else if (diffHour > 0) {
-                return `${diffHour}小时前`;
-            } else if (diffMin > 0) {
-                return `${diffMin}分钟前`;
-            } else {
-                return `${diffSec}秒前`;
+            updateImageViewer();
+            
+            imageViewerModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // 防止背景滚动
+        }
+
+        // 关闭图片查看器
+        function closeImageViewerModal() {
+            imageViewerModal.classList.add('hidden');
+            document.body.style.overflow = 'auto'; // 恢复背景滚动
+        }
+
+        // 更新图片查看器内容
+        function updateImageViewer() {
+            if (currentImages.length === 0) return;
+            
+            fullsizeImage.src = currentImages[currentImageIndex];
+            imageCaption.textContent = currentPostId ? posts.find(p => p.id === currentPostId)?.content || '' : '';
+            imageCounter.textContent = `${currentImageIndex + 1}/${currentImages.length}`;
+            
+            // 禁用不可用的按钮
+            prevImageBtn.disabled = currentImageIndex === 0;
+            nextImageBtn.disabled = currentImageIndex === currentImages.length - 1;
+            
+            prevImageBtn.classList.toggle('opacity-50', currentImageIndex === 0);
+            nextImageBtn.classList.toggle('opacity-50', currentImageIndex === currentImages.length - 1);
+        }
+
+        // 显示上一张图片
+        function showPrevImage() {
+            if (currentImageIndex > 0) {
+                currentImageIndex--;
+                updateImageViewer();
             }
         }
 
-        // 切换点赞状态
-        function toggleLike(postId) {
-            const post = posts.find(p => p.id === postId);
+        // 显示下一张图片
+        function showNextImage() {
+            if (currentImageIndex < currentImages.length - 1) {
+                currentImageIndex++;
+                updateImageViewer();
+            }
+        }
+
+        // 处理删除动态
+        async function handleDeletePost(postId) {
+            if (confirm('确定要删除这条动态吗？')) {
+                // 从数组中移除
+                posts = posts.filter(post => post.id !== postId);
+                
+                // 删除文件
+                await deletePostFile(postId);
+                
+                // 更新显示
+                updatePostsDisplay();
+            }
+        }
+
+        // 处理点赞动态
+        async function handleLikePost(postId) {
+            const post = posts.find(post => post.id === postId);
             if (post) {
                 post.liked = !post.liked;
-                if (post.liked) {
-                    post.likes = (post.likes || 0) + 1;
-                } else {
-                    post.likes = (post.likes || 1) - 1;
+                
+                // 更新UI
+                const postElement = document.querySelector(`article[data-post-id="${postId}"]`);
+                const likeBtn = postElement?.querySelector('.like-post');
+                
+                if (likeBtn) {
+                    if (post.liked) {
+                        likeBtn.innerHTML = '<i class="fa fa-heart text-red-500"></i><span>已点赞</span>';
+                        likeBtn.classList.add('text-red-500');
+                        likeBtn.classList.remove('text-neutral-500', 'hover:text-primary');
+                    } else {
+                        likeBtn.innerHTML = '<i class="fa fa-heart-o"></i><span>点赞</span>';
+                        likeBtn.classList.remove('text-red-500');
+                        likeBtn.classList.add('text-neutral-500', 'hover:text-primary');
+                    }
                 }
-                savePost(post).then(() => {
-                    renderPosts();
-                });
-            }
-        }
-
-        // 打开评论模态框
-        function openComments(postId) {
-            currentPostId = postId;
-            const post = posts.find(p => p.id === postId);
-            
-            // 清空并填充评论
-            commentsContainer.innerHTML = '';
-            
-            if (post && post.comments && post.comments.length > 0) {
-                post.comments.forEach(comment => {
-                    const commentElement = document.createElement('div');
-                    commentElement.className = 'flex items-start justify-between';
-                    commentElement.innerHTML = `
-                        <div>
-                            <div class="flex items-center">
-                                <span class="font-medium text-neutral-700">${comment.author}</span>
-                                <span class="ml-2 text-xs text-neutral-400">${formatCommentTime(comment.timestamp)}</span>
-                            </div>
-                            <p class="text-neutral-600 mt-1">${comment.content}</p>
-                        </div>
-                        <button class="delete-comment-btn text-red-500 text-sm" data-comment-id="${comment.id}">删除</button>
-                    `;
-                    commentsContainer.appendChild(commentElement);
-                });
-            } else {
-                commentsContainer.innerHTML = `
-                    <div class="text-center py-8 text-neutral-400">
-                        <i class="fa fa-comment-o text-2xl mb-2"></i>
-                        <p>暂无评论，添加一条评论吧</p>
-                    </div>
-                `;
-            }
-            
-            // 显示模态框
-            commentsModal.classList.remove('hidden');
-        }
-
-        // 添加评论
-        function addComment(content) {
-            if (!currentPostId || !content.trim()) return;
-            
-            const post = posts.find(p => p.id === currentPostId);
-            if (!post) return;
-            
-            // 创建新评论
-            const newComment = {
-                id: Date.now().toString(),
-                author: accountName,
-                content: content.trim(),
-                timestamp: Date.now()
-            };
-            
-            // 添加到数组
-            if (!post.comments) {
-                post.comments = [];
-            }
-            post.comments.push(newComment);
-            
-            // 保存到数据库
-            savePost(post).then(() => {
-                // 更新评论列表
-                commentsContainer.innerHTML = '';
-                post.comments.forEach(comment => {
-                    const commentElement = document.createElement('div');
-                    commentElement.className = 'flex items-start justify-between';
-                    commentElement.innerHTML = `
-                        <div>
-                            <div class="flex items-center">
-                                <span class="font-medium text-neutral-700">${comment.author}</span>
-                                <span class="ml-2 text-xs text-neutral-400">${formatCommentTime(comment.timestamp)}</span>
-                            </div>
-                            <p class="text-neutral-600 mt-1">${comment.content}</p>
-                        </div>
-                        <button class="delete-comment-btn text-red-500 text-sm" data-comment-id="${comment.id}">删除</button>
-                    `;
-                    commentsContainer.appendChild(commentElement);
-                });
                 
-                // 清空输入框
-                commentInput.value = '';
-                
-                // 为新添加的删除按钮添加事件监听器
-                const deleteButtons = commentsContainer.querySelectorAll('.delete-comment-btn');
-                deleteButtons.forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const commentId = this.getAttribute('data-comment-id');
-                        deleteComment(currentPostId, commentId);
-                    });
-                });
-            });
+                // 保存更新
+                await savePost(post);
+            }
         }
 
-        // 删除评论
-        function deleteComment(postId, commentId) {
-            const post = posts.find(p => p.id === postId);
-            if (!post || !post.comments) return;
-            
-            // 从数组中删除评论
-            post.comments = post.comments.filter(comment => comment.id !== commentId);
-            
-            // 保存到数据库
-            savePost(post).then(() => {
-                // 更新评论列表
+        // 处理显示评论
+        async function handleShowComments(postId) {
+            const post = posts.find(post => post.id === postId);
+            if (post) {
+                currentPostId = postId;
+                
+                // 清空评论容器
                 commentsContainer.innerHTML = '';
                 
+                // 渲染评论
                 if (post.comments && post.comments.length > 0) {
                     post.comments.forEach(comment => {
-                        const commentElement = document.createElement('div');
-                        commentElement.className = 'flex items-start justify-between';
-                        commentElement.innerHTML = `
-                            <div>
-                                <div class="flex items-center">
-                                    <span class="font-medium text-neutral-700">${comment.author}</span>
-                                    <span class="ml-2 text-xs text-neutral-400">${formatCommentTime(comment.timestamp)}</span>
-                                </div>
-                                <p class="text-neutral-600 mt-1">${comment.content}</p>
-                            </div>
-                            <button class="delete-comment-btn text-red-500 text-sm" data-comment-id="${comment.id}">删除</button>
-                        `;
+                        const commentElement = createCommentElement(comment);
                         commentsContainer.appendChild(commentElement);
-                    });
-                    
-                    // 为删除按钮添加事件监听器
-                    const deleteButtons = commentsContainer.querySelectorAll('.delete-comment-btn');
-                    deleteButtons.forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            const commentId = this.getAttribute('data-comment-id');
-                            deleteComment(postId, commentId);
-                        });
                     });
                 } else {
                     commentsContainer.innerHTML = `
                         <div class="text-center py-8 text-neutral-400">
-                            <i class="fa fa-comment-o text-2xl mb-2"></i>
-                            <p>暂无评论，添加一条评论吧</p>
+                            <i class="fa fa-comment-o text-3xl mb-2"></i>
+                            <p>暂无评论</p>
                         </div>
                     `;
                 }
-            });
-        }
-
-        // 打开图片查看器
-        function openImageViewer(images, startIndex) {
-            currentImages = images;
-            currentImageIndex = startIndex;
-            
-            // 设置当前图片
-            updateImageViewer();
-            
-            // 显示模态框
-            imageViewerModal.classList.remove('hidden');
-        }
-
-        // 更新图片查看器
-        function updateImageViewer() {
-            if (!currentImages || currentImages.length === 0) return;
-            
-            fullsizeImage.src = currentImages[currentImageIndex];
-            fullsizeImage.alt = `动态图片 ${currentImageIndex + 1}`;
-            imageCaption.textContent = `图片 ${currentImageIndex + 1}`;
-            imageCounter.textContent = `共 ${currentImages.length} 张`;
-        }
-
-        // 初始化应用
-        async function initApp() {
-            await initDatabase();
-            await loadPosts();
-            
-            // 设置视图切换
-            timelineViewBtn.addEventListener('click', function() {
-                currentView = 'timeline';
-                timelineViewBtn.classList.remove('bg-neutral-200', 'text-neutral-600');
-                timelineViewBtn.classList.add('bg-primary', 'text-white');
-                listViewBtn.classList.remove('bg-primary', 'text-white');
-                listViewBtn.classList.add('bg-neutral-200', 'text-neutral-600');
-                renderPosts();
-            });
-            
-            listViewBtn.addEventListener('click', function() {
-                currentView = 'list';
-                listViewBtn.classList.remove('bg-neutral-200', 'text-neutral-600');
-                listViewBtn.classList.add('bg-primary', 'text-white');
-                timelineViewBtn.classList.remove('bg-primary', 'text-white');
-                timelineViewBtn.classList.add('bg-neutral-200', 'text-neutral-600');
-                renderPosts();
-            });
-            
-            // 显示时间线筛选器
-            timelineViewBtn.addEventListener('click', function() {
-                timelineFilter.classList.remove('hidden');
-            });
-            
-            // 关闭时间线筛选器
-            closeTimelineFilter.addEventListener('click', function() {
-                timelineFilter.classList.add('hidden');
-            });
-            
-            // 模态框相关事件
-            addPostBtn.addEventListener('click', function() {
-                openAddPostModal();
-            });
-            
-            emptyAddBtn.addEventListener('click', function() {
-                openAddPostModal();
-            });
-            
-            closeModalBtn.addEventListener('click', function() {
-                closeAddPostModal();
-            });
-            
-            savePostBtn.addEventListener('click', function() {
-                saveNewPost();
-            });
-            
-            closeCommentsBtn.addEventListener('click', function() {
-                commentsModal.classList.add('hidden');
-            });
-            
-            addCommentBtn.addEventListener('click', function() {
-                addComment(commentInput.value);
-            });
-            
-            commentInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    addComment(commentInput.value);
-                }
-            });
-            
-            closeImageViewer.addEventListener('click', function() {
-                imageViewerModal.classList.add('hidden');
-            });
-            
-            prevImageBtn.addEventListener('click', function() {
-                if (currentImages && currentImages.length > 0) {
-                    currentImageIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
-                    updateImageViewer();
-                }
-            });
-            
-            nextImageBtn.addEventListener('click', function() {
-                if (currentImages && currentImages.length > 0) {
-                    currentImageIndex = (currentImageIndex + 1) % currentImages.length;
-                    updateImageViewer();
-                }
-            });
-            
-            // 图片上传预览
-            fileUpload.addEventListener('change', function() {
-                if (this.files && this.files.length > 0) {
-                    imagePreviews.innerHTML = '';
-                    imagePreviews.classList.remove('hidden');
-                    
-                    for (let i = 0; i < Math.min(this.files.length, 9); i++) {
-                        const file = this.files[i];
-                        const reader = new FileReader();
-                        
-                        reader.onload = function(e) {
-                            const imageContainer = document.createElement('div');
-                            imageContainer.className = 'relative';
-                            imageContainer.innerHTML = `
-                                <img src="${e.target.result}" alt="预览图片" class="w-full h-24 object-cover rounded-lg">
-                                <button class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center remove-image-btn" data-index="${i}">
-                                    <i class="fa fa-times"></i>
-                                </button>
-                            `;
-                            imagePreviews.appendChild(imageContainer);
-                            
-                            // 添加删除图片事件
-                            const removeBtn = imageContainer.querySelector('.remove-image-btn');
-                            removeBtn.addEventListener('click', function() {
-                                const index = parseInt(this.getAttribute('data-index'));
-                                const dt = new DataTransfer();
-                                
-                                for (let j = 0; j < fileUpload.files.length; j++) {
-                                    if (j !== index) {
-                                        dt.items.add(fileUpload.files[j]);
-                                    }
-                                }
-                                
-                                fileUpload.files = dt.files;
-                                
-                                // 如果没有图片了，隐藏预览区域
-                                if (fileUpload.files.length === 0) {
-                                    imagePreviews.classList.add('hidden');
-                                }
-                                
-                                // 重新渲染预览
-                                imagePreviews.innerHTML = '';
-                                for (let k = 0; k < fileUpload.files.length; k++) {
-                                    const previewFile = fileUpload.files[k];
-                                    const previewReader = new FileReader();
-                                    
-                                    previewReader.onload = function(previewEvent) {
-                                        const previewContainer = document.createElement('div');
-                                        previewContainer.className = 'relative';
-                                        previewContainer.innerHTML = `
-                                            <img src="${previewEvent.target.result}" alt="预览图片" class="w-full h-24 object-cover rounded-lg">
-                                            <button class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center remove-image-btn" data-index="${k}">
-                                                <i class="fa fa-times"></i>
-                                            </button>
-                                        `;
-                                        imagePreviews.appendChild(previewContainer);
-                                        
-                                        // 为新添加的删除按钮添加事件
-                                        const newRemoveBtn = previewContainer.querySelector('.remove-image-btn');
-                                        newRemoveBtn.addEventListener('click', function() {
-                                            const newIndex = parseInt(this.getAttribute('data-index'));
-                                            const newDt = new DataTransfer();
-                                            
-                                            for (let m = 0; m < fileUpload.files.length; m++) {
-                                                if (m !== newIndex) {
-                                                    newDt.items.add(fileUpload.files[m]);
-                                                }
-                                            }
-                                            
-                                            fileUpload.files = newDt.files;
-                                            
-                                            if (fileUpload.files.length === 0) {
-                                                imagePreviews.classList.add('hidden');
-                                            }
-                                            
-                                            // 重新渲染预览
-                                            imagePreviews.innerHTML = '';
-                                            for (let n = 0; n < fileUpload.files.length; n++) {
-                                                const finalFile = fileUpload.files[n];
-                                                const finalReader = new FileReader();
-                                                
-                                                finalReader.onload = function(finalEvent) {
-                                                    const finalContainer = document.createElement('div');
-                                                    finalContainer.className = 'relative';
-                                                    finalContainer.innerHTML = `
-                                                        <img src="${finalEvent.target.result}" alt="预览图片" class="w-full h-24 object-cover rounded-lg">
-                                                        <button class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center remove-image-btn" data-index="${n}">
-                                                            <i class="fa fa-times"></i>
-                                                        </button>
-                                                    `;
-                                                    imagePreviews.appendChild(finalContainer);
-                                                    
-                                                    // 为新添加的删除按钮添加事件
-                                                    const finalRemoveBtn = finalContainer.querySelector('.remove-image-btn');
-                                                    finalRemoveBtn.addEventListener('click', function() {
-                                                        // 递归处理删除
-                                                        const finalIndex = parseInt(this.getAttribute('data-index'));
-                                                        const finalDt = new DataTransfer();
-                                                        
-                                                        for (let p = 0; p < fileUpload.files.length; p++) {
-                                                            if (p !== finalIndex) {
-                                                                finalDt.items.add(fileUpload.files[p]);
-                                                            }
-                                                        }
-                                                        
-                                                        fileUpload.files = finalDt.files;
-                                                        
-                                                        if (fileUpload.files.length === 0) {
-                                                            imagePreviews.classList.add('hidden');
-                                                        } else {
-                                                            // 重新渲染预览
-                                                            imagePreviews.innerHTML = '';
-                                                            for (let q = 0; q < fileUpload.files.length; q++) {
-                                                                const imgFile = fileUpload.files[q];
-                                                                const imgReader = new FileReader();
-                                                                
-                                                                imgReader.onload = function(imgEvent) {
-                                                                    const imgContainer = document.createElement('div');
-                                                                    imgContainer.className = 'relative';
-                                                                    imgContainer.innerHTML = `
-                                                                        <img src="${imgEvent.target.result}" alt="预览图片" class="w-full h-24 object-cover rounded-lg">
-                                                                        <button class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center remove-image-btn" data-index="${q}">
-                                                                            <i class="fa fa-times"></i>
-                                                                        </button>
-                                                                    `;
-                                                                    imagePreviews.appendChild(imgContainer);
-                                                                    
-                                                                    // 为新添加的删除按钮添加事件
-                                                                    const imgRemoveBtn = imgContainer.querySelector('.remove-image-btn');
-                                                                    imgRemoveBtn.addEventListener('click', function() {
-                                                                        // 再次递归处理删除...
-                                                                    });
-                                                                };
-                                                                
-                                                                imgReader.readAsDataURL(imgFile);
-                                                            }
-                                                        }
-                                                    });
-                                                };
-                                                
-                                                imgReader.readAsDataURL(finalFile);
-                                            }
-                                        });
-                                    };
-                                    
-                                    previewReader.readAsDataURL(previewFile);
-                                }
-                            });
-                        };
-                        
-                        reader.readAsDataURL(file);
-                    }
-                }
-            });
-            
-            // 键盘导航
-            document.addEventListener('keydown', function(e) {
-                if (imageViewerModal.classList.contains('hidden')) return;
                 
-                if (e.key === 'ArrowLeft') {
-                    prevImageBtn.click();
-                } else if (e.key === 'ArrowRight') {
-                    nextImageBtn.click();
-                } else if (e.key === 'Escape') {
-                    closeImageViewer.click();
-                }
+                // 显示模态框
+                commentsModal.classList.remove('hidden');
+                
+                // 聚焦到评论输入框
+                commentInput.focus();
+            }
+        }
+
+        // 创建评论元素
+        function createCommentElement(comment) {
+            const commentDate = new Date(comment.timestamp);
+            const formattedDate = commentDate.toLocaleString('zh-CN', {
+                hour: '2-digit',
+                minute: '2-digit'
             });
+            
+            const commentElement = document.createElement('div');
+            commentElement.className = 'flex items-start space-x-2 animate-fade-in';
+            commentElement.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-500 flex-shrink-0">
+                    <i class="fa fa-user"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="flex justify-between">
+                        <p class="text-sm font-medium text-neutral-700">评论者</p>
+                        <p class="text-xs text-neutral-400">${formattedDate}</p>
+                    </div>
+                    <p class="text-sm text-neutral-600">${comment.text}</p>
+                </div>
+            `;
+            
+            return commentElement;
+        }
+
+        // 添加新评论
+        async function handleAddComment() {
+            const commentText = commentInput.value.trim();
+            if (!commentText) return;
+            
+            const post = posts.find(post => post.id === currentPostId);
+            if (post) {
+                // 创建新评论
+                const newComment = {
+                    id: Date.now().toString(),
+                    text: commentText,
+                    timestamp: Date.now()
+                };
+                
+                // 添加到评论列表
+                if (!post.comments) post.comments = [];
+                post.comments.push(newComment);
+                
+                // 保存更新
+                await savePost(post);
+                
+                // 更新UI
+                const commentElement = createCommentElement(newComment);
+                commentsContainer.appendChild(commentElement);
+                
+                // 清空输入框
+                commentInput.value = '';
+                
+                // 滚动到底部
+                commentsContainer.scrollTop = commentsContainer.scrollHeight;
+            }
         }
 
         // 打开添加动态模态框
         function openAddPostModal() {
+            // 清空表单
             postContent.value = '';
-            fileUpload.value = '';
             imagePreviews.innerHTML = '';
             imagePreviews.classList.add('hidden');
+            fileUpload.value = '';
+            
+            // 显示模态框
             addPostModal.classList.remove('hidden');
+            
+            // 聚焦到文本输入框
             postContent.focus();
         }
 
         // 关闭添加动态模态框
         function closeAddPostModal() {
+            // 彻底清空图片相关状态
+            postContent.value = '';
+            imagePreviews.innerHTML = '';
+            imagePreviews.classList.add('hidden');
+            fileUpload.value = '';
+            
             addPostModal.classList.add('hidden');
         }
 
+        // 关闭评论模态框
+        function closeCommentsModal() {
+            commentsModal.classList.add('hidden');
+            currentPostId = null;
+        }
+
         // 保存新动态
-        async function saveNewPost() {
+        async function handleSavePost() {
             const content = postContent.value.trim();
-            const files = fileUpload.files;
+            const imageElements = imagePreviews.querySelectorAll('img');
+            const imageUrls = Array.from(imageElements).map(img => img.src);
             
-            if (!content && files.length === 0) {
+            // 验证
+            if (!content && imageUrls.length === 0) {
                 alert('请输入内容或选择图片');
                 return;
             }
@@ -1169,52 +1125,159 @@
             const newPost = {
                 id: Date.now().toString(),
                 content: content,
+                imageUrls: imageUrls,
                 timestamp: Date.now(),
-                likes: 0,
                 liked: false,
                 comments: []
             };
             
-            // 处理图片
-            if (files.length > 0) {
-                newPost.images = [];
+            // 保存到数据库
+            const saved = await savePost(newPost);
+            
+            if (saved) {
+                // 添加到数组
+                posts.unshift(newPost);
                 
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        newPost.images.push(e.target.result);
-                        
-                        // 当所有图片都处理完毕后保存动态
-                        if (newPost.images.length === files.length) {
-                            savePost(newPost).then(() => {
-                                // 添加到内存中
-                                posts.unshift(newPost);
-                                
-                                // 更新UI
-                                closeAddPostModal();
-                                updateTimelineFilters();
-                                renderPosts();
-                            });
-                        }
-                    };
-                    
-                    reader.readAsDataURL(file);
-                }
-            } else {
-                // 没有图片，直接保存
-                savePost(newPost).then(() => {
-                    // 添加到内存中
-                    posts.unshift(newPost);
-                    
-                    // 更新UI
-                    closeAddPostModal();
-                    updateTimelineFilters();
-                    renderPosts();
-                });
+                // 更新显示
+                updatePostsDisplay();
+                
+                // 更新时间线筛选器
+                updateTimelineFilters();
+                
+                // 关闭模态框
+                closeAddPostModal();
             }
         }
+
+        // 预览图片
+        function handleImageUpload(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+            
+            // 限制最多9张图片
+            const validFiles = Array.from(files).slice(0, 9);
+            
+            if (files.length > 9) {
+                alert('最多只能上传9张图片');
+            }
+            
+            // 清空现有预览
+            imagePreviews.innerHTML = '';
+            
+            // 添加新预览
+            validFiles.forEach(file => {
+                // 验证文件类型
+                const fileType = file.type;
+                if (!fileType.startsWith('image/')) {
+                    alert('请选择图片文件');
+                    return;
+                }
+                
+                // 创建图片预览
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewWrapper = document.createElement('div');
+                    previewWrapper.className = 'relative';
+                    
+                    const previewImg = document.createElement('img');
+                    previewImg.src = e.target.result;
+                    previewImg.className = 'w-full h-auto rounded-lg';
+                    previewImg.alt = '预览图片';
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors';
+                    removeBtn.innerHTML = '<i class="fa fa-times"></i>';
+                    removeBtn.addEventListener('click', () => {
+                        previewWrapper.remove();
+                        if (imagePreviews.children.length === 0) {
+                            imagePreviews.classList.add('hidden');
+                        }
+                    });
+                    
+                    previewWrapper.appendChild(previewImg);
+                    previewWrapper.appendChild(removeBtn);
+                    imagePreviews.appendChild(previewWrapper);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // 显示预览容器
+            if (validFiles.length > 0) {
+                imagePreviews.classList.remove('hidden');
+            }
+        }
+
+        // 初始化应用
+        async function initApp() {
+            try {
+                console.log('应用初始化开始...');
+                
+                // 初始化数据库
+                await initDatabase();
+                
+                // 加载动态
+                await loadPosts();
+                
+                // 更新显示
+                updatePostsDisplay();
+                
+                // 添加事件监听器
+                addPostBtn.addEventListener('click', openAddPostModal);
+                emptyAddBtn.addEventListener('click', openAddPostModal);
+                closeModalBtn.addEventListener('click', closeAddPostModal);
+                savePostBtn.addEventListener('click', handleSavePost);
+                fileUpload.addEventListener('change', handleImageUpload);
+                closeCommentsBtn.addEventListener('click', closeCommentsModal);
+                addCommentBtn.addEventListener('click', handleAddComment);
+                commentInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        handleAddComment();
+                    }
+                });
+                
+                // 图片查看器事件
+                closeImageViewer.addEventListener('click', closeImageViewerModal);
+                prevImageBtn.addEventListener('click', showPrevImage);
+                nextImageBtn.addEventListener('click', showNextImage);
+                
+                // 视图切换事件
+                timelineViewBtn.addEventListener('click', switchToTimelineView);
+                listViewBtn.addEventListener('click', switchToListView);
+                closeTimelineFilter.addEventListener('click', () => {
+                    timelineFilter.classList.add('hidden');
+                });
+                
+                // 点击模态框外部关闭
+                addPostModal.addEventListener('click', (e) => {
+                    if (e.target === addPostModal) {
+                        closeAddPostModal();
+                    }
+                });
+                
+                commentsModal.addEventListener('click', (e) => {
+                    if (e.target === commentsModal) {
+                        closeCommentsModal();
+                    }
+                });
+                
+                imageViewerModal.addEventListener('click', (e) => {
+                    if (e.target === imageViewerModal) {
+                        closeImageViewerModal();
+                    }
+                });
+                
+                // 显示初始空状态
+                updatePostsDisplay();
+                
+                console.log('应用初始化完成');
+            } catch (error) {
+                console.error('应用初始化失败:', error);
+                alert('应用初始化失败: ' + error.message);
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
