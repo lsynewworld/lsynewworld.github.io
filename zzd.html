@@ -1,0 +1,189 @@
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>个人信息页</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#007AFF',
+                        secondary: '#34C759',
+                        danger: '#FF3B30',
+                        warning: '#FF9500',
+                        info: '#5AC8FA',
+                        dark: '#1C1C1E',
+                        'dark-gray': '#8E8E93',
+                        'light-gray': '#F2F2F7',
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'card': '16px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .avatar-shadow {
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            .nav-item-active {
+                color: theme('colors.primary');
+            }
+            .list-item-hover {
+                @apply transition-colors duration-200;
+            }
+            .list-item-hover:hover {
+                background-color: rgba(0, 122, 255, 0.05);
+            }
+        }
+    </style>
+</head>
+<body class="bg-light-gray text-dark font-sans">
+    <!-- 头部信息区域 -->
+    <header class="rounded-card overflow-hidden bg-white p-4 shadow-sm mt-4 mx-4">
+        <div class="flex items-center justify-between">
+            <div class="flex-1">
+                <h1 class="text-[clamp(1.1rem,3vw,1.25rem)] font-semibold mb-0.5">何鸿宇</h1>
+                <br>
+                <p class="text-dark-gray text-sm">航空港区明港办事处</p>
+                <br>
+                <br>
+                <div class="flex items-center justify-between text-dark-gray text-sm mt-4">
+                    <span>我的名片</span>
+                    <i class="fa fa-qrcode ml-1.5 text-dark-gray/80"></i>
+                </div>
+            </div>
+            <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/e05dd3bbbca64d658b7d7ac81a63f7d0~tplv-a9rns2rl98-image.image?rk3s=8e244e95&amp;rrcfp=e75484ac&amp;x-expires=1752653363&amp;x-signature=0i%2Fqf2Q1UW3rciNfynHJiJsS9Vw%3D" alt="用户头像" class="w-16 h-16 rounded-full avatar-shadow ml-2">
+        </div>
+    </header>
+
+    <!-- 功能列表区域 -->
+    <div class="mt-4 mx-4 bg-white rounded-card shadow-sm overflow-hidden">
+        <ul class="divide-y divide-light-gray">
+            <li class="flex items-center justify-between p-4 list-item-hover">
+                <div class="flex items-center">
+                    <i class="fa fa-wifi text-primary text-lg mr-4"></i>
+                    <span class="text-[clamp(0.95rem,2vw,1rem)]">VPN</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-dark-gray text-sm mr-2">未连接</span>
+                    <i class="fa fa-chevron-right text-dark-gray/50 text-xs"></i>
+                </div>
+            </li>
+            <li class="flex items-center justify-between p-4 list-item-hover">
+                <div class="flex items-center">
+                    <i class="fa fa-shield text-purple-500 text-lg mr-4"></i>
+                    <span class="text-[clamp(0.95rem,2vw,1rem)]">账号与安全</span>
+                </div>
+                <i class="fa fa-chevron-right text-dark-gray/50 text-xs"></i>
+            </li>
+            <li class="flex items-center justify-between p-4 list-item-hover">
+                <div class="flex items-center">
+                    <i class="fa fa-cog text-amber-500 text-lg mr-4"></i>
+                    <span class="text-[clamp(0.95rem,2vw,1rem)]">通用设置</span>
+                </div>
+                <i class="fa fa-chevron-right text-dark-gray/50 text-xs"></i>
+            </li>
+            <li class="flex items-center justify-between p-4 list-item-hover">
+                <div class="flex items-center">
+                    <i class="fa fa-lock text-red-500 text-lg mr-4"></i>
+                    <span class="text-[clamp(0.95rem,2vw,1rem)]">隐私</span>
+                </div>
+                <i class="fa fa-chevron-right text-dark-gray/50 text-xs"></i>
+            </li>
+            <li class="flex items-center justify-between p-4 list-item-hover">
+                <div class="flex items-center">
+                    <i class="fa fa-bell text-yellow-500 text-lg mr-4"></i>
+                    <span class="text-[clamp(0.95rem,2vw,1rem)]">新消息通知</span>
+                </div>
+                <i class="fa fa-chevron-right text-dark-gray/50 text-xs"></i>
+            </li>
+            <li class="flex items-center justify-between p-4 list-item-hover">
+                <div class="flex items-center">
+                    <i class="fa fa-share-alt text-green-500 text-lg mr-4"></i>
+                    <span class="text-[clamp(0.95rem,2vw,1rem)]">分享</span>
+                </div>
+                <i class="fa fa-chevron-right text-dark-gray/50 text-xs"></i>
+            </li>
+            <li class="flex items-center justify-between p-4 list-item-hover">
+                <div class="flex items-center">
+                    <i class="fa fa-info-circle text-dark-gray text-lg mr-4"></i>
+                    <span class="text-[clamp(0.95rem,2vw,1rem)]">关于</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-dark-gray text-sm mr-2">V2.10.1.3</span>
+                    <i class="fa fa-chevron-right text-dark-gray/50 text-xs"></i>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 底部导航区域 -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-light-gray z-50">
+        <div class="flex justify-around items-center h-16">
+            <a href="#" class="flex flex-col items-center justify-center text-dark-gray transition-colors duration-200">
+                <i class="fa fa-commenting-o text-[1.3rem]"></i>
+                <span class="text-xs mt-1">消息</span>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center text-dark-gray transition-colors duration-200">
+                <i class="fa fa-tasks text-[1.3rem]"></i>
+                <span class="text-xs mt-1">待办</span>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center text-dark-gray transition-colors duration-200">
+                <i class="fa fa-dashboard text-[1.3rem]"></i>
+                <span class="text-xs mt-1">工作台</span>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center text-dark-gray transition-colors duration-200">
+                <i class="fa fa-address-book-o text-[1.3rem]"></i>
+                <span class="text-xs mt-1">通讯录</span>
+            </a>
+            <a href="#" class="flex flex-col items-center justify-center text-primary transition-colors duration-200">
+                <i class="fa fa-user-o text-[1.3rem]"></i>
+                <span class="text-xs mt-1">我的</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- 页面底部留白，避免内容被底部导航遮挡 -->
+    <div class="h-20"></div>
+
+    <script>
+        // 底部导航切换效果
+        document.querySelectorAll('nav a').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('nav a').forEach(el => {
+                    el.classList.remove('text-primary');
+                    el.classList.add('text-dark-gray');
+                });
+                this.classList.remove('text-dark-gray');
+                this.classList.add('text-primary');
+            });
+        });
+
+        // 列表项点击效果
+        document.querySelectorAll('.list-item-hover').forEach(item => {
+            item.addEventListener('click', function() {
+                // 点击效果
+                this.classList.add('bg-primary/10');
+                setTimeout(() => {
+                    this.classList.remove('bg-primary/10');
+                }, 200);
+                
+                // 这里可以添加实际点击逻辑
+                console.log('点击了:', this.querySelector('span').textContent);
+            });
+        });
+    </script>
+
+    </body></html>
